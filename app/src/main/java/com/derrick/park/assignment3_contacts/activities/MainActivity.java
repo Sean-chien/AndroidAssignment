@@ -1,7 +1,10 @@
 package com.derrick.park.assignment3_contacts.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.derrick.park.assignment3_contacts.R;
@@ -16,13 +19,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
+    private RecyclerView recyclerView;
+    private MListApapter mListApapter;
     private ArrayList<Contact> mContactList;
+    private Context context = this;
     public static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Call<ContactList> call = ContactClient.getContacts(10);
 
         call.enqueue(new Callback<ContactList>() {
@@ -31,10 +38,15 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                      mContactList = response.body().getContactList();
                      for(Contact contact: mContactList) {
-                         Log.d(TAG, "onResponse: " + mContactList.size());
-                         Log.d(TAG, "onResponse: " + contact);
+                         Log.d(TAG, "onResponse: " + contact.getName());
+                         Log.d(TAG, "onResponse: " + contact.getCell());  // cell = phone
                      }
+
                 }
+                mListApapter = new MListApapter(mContactList, context);
+                recyclerView = findViewById(R.id.recyclerview);
+                recyclerView.setAdapter(mListApapter);
+                recyclerView.setLayoutManager(new LinearLayoutManager(context));
             }
 
             @Override
